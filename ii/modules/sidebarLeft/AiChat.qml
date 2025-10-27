@@ -48,7 +48,10 @@ Item {
             if (Persistent.states.ai.autoSaveEnabled !== undefined) root.autoSaveEnabled = Persistent.states.ai.autoSaveEnabled;
             if (Persistent.states.ai.autoSaveName) root.autoSaveName = Persistent.states.ai.autoSaveName;
         }
+        // Start fresh each session
+        Ai.clearMessages();
         Ai.loadPrompt(root.promptPath);
+        
     }
 
     Keys.onPressed: (event) => {
@@ -316,6 +319,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
 
     // Settings dialog state
     property bool aiSettingsOpen: false
+
 
     ColumnLayout {
         id: columnLayout
@@ -856,6 +860,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                     // Load prompt draft: prefer saved chat prompt; fallback to ii-Default.md
                     chatPromptReader.path = root.promptPath;
                     // default will be loaded on failure or empty
+
                 }
             }
 
@@ -864,6 +869,14 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 anchors.fill: parent
                 color: Appearance.m3colors.m3surfaceContainerLow
                 radius: Appearance.rounding.windowRounding - 12
+
+
+                Timer {
+                    id: saveToastTimer
+                    interval: 900
+                    repeat: false
+                    onTriggered: saveToast.visible = false
+                }
 
                 // Save toast
                 Rectangle {
@@ -900,6 +913,13 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                         y: 16
                         spacing: 12
 
+                        // Styled section heading component
+                        component SectionHeading: StyledText {
+                            font.pixelSize: Appearance.font.pixelSize.large
+                            font.weight: Font.DemiBold
+                            color: "#87CEEB" // sky blue
+                        }
+
                     WindowDialogTitle { text: Translation.tr("AI Settings") }
 
                 // Autosave toggle
@@ -918,7 +938,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 6
-                    StyledText { text: Translation.tr("Autosave name") }
+                    SectionHeading { text: Translation.tr("Autosave name") }
                     MaterialTextField {
                         text: root.autoSaveName
                         placeholderText: Translation.tr("e.g. autosave")
@@ -930,7 +950,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 6
-                    StyledText { text: Translation.tr("Model") }
+                    SectionHeading { text: Translation.tr("Model") }
                     ComboBox {
                         Layout.fillWidth: true
                         model: root.modelIds.map(id => Ai.models[id].name)
@@ -951,7 +971,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 6
-                    StyledText { text: Translation.tr("API key") }
+                    SectionHeading { text: Translation.tr("API key") }
                     MaterialTextField {
                         id: apiKeyField
                         Layout.fillWidth: true
@@ -964,7 +984,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 6
-                    StyledText { text: Translation.tr("Temperature") }
+                    SectionHeading { text: Translation.tr("Temperature") }
                     StyledSlider {
                         from: 0
                         to: 2
@@ -981,7 +1001,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 ColumnLayout {
                     Layout.fillWidth: true
                     spacing: 6
-                    StyledText { text: Translation.tr("System prompt for this chat") }
+                    SectionHeading { text: Translation.tr("System prompt for this chat") }
                     ScrollView {
                         Layout.fillWidth: true
                         Layout.preferredHeight: 260
@@ -1010,6 +1030,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                         StyledText { text: FileUtils.fileNameForPath(root.promptPath); color: Appearance.colors.colSubtext }
                     }
                 }
+
 
                 RowLayout {
                     Layout.fillWidth: true
@@ -1052,7 +1073,9 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                                 `mkdir -p '${Directories.defaultAiPrompts.replace(/file:\/\//, "")}'; printf %s '${StringUtils.shellSingleQuoteEscape(root.promptDraft)}' > '${root.promptPath}'`])
                             Ai.loadPrompt(root.promptPath)
 
+
                             // Show toast and auto-close
+                            saveToastText.text = Translation.tr("Settings saved")
                             saveToast.visible = true
                             saveToastTimer.restart()
                         }
@@ -1078,13 +1101,6 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                     onLoaded: {
                         root.promptDraft = defaultPromptReader.text()
                     }
-                }
-
-                Timer {
-                    id: saveToastTimer
-                    interval: 700
-                    repeat: false
-                    onTriggered: settingsWin.visible = false
                 }
             }
                 ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }

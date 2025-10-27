@@ -135,6 +135,60 @@ Singleton {
                         "required": ["command"]
                     }
                 },
+                {
+                    "name": "read_file",
+                    "description": "Read the contents of a file from the filesystem using MCP. Use this when the user wants to see what's in a file.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "path": {
+                                "type": "string",
+                                "description": "The absolute path to the file to read"
+                            }
+                        },
+                        "required": ["path"]
+                    }
+                },
+                {
+                    "name": "fetch_url",
+                    "description": "Fetch the contents of a URL over HTTP(S) using MCP server-fetch.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "url": { "type": "string", "description": "The URL to fetch" },
+                            "method": { "type": "string", "description": "HTTP method (GET, POST, etc.)", "default": "GET" },
+                            "headers": { "type": "object", "description": "Optional headers as a JSON object" },
+                            "body": { "description": "Optional request body; string or JSON-serializable value" }
+                        },
+                        "required": ["url"]
+                    }
+                },
+                {
+                    "name": "write_memory",
+                    "description": "Store a memory note using MCP server-memory.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "text": { "type": "string", "description": "The content to remember" },
+                            "namespace": { "type": "string", "description": "Optional namespace or topic" },
+                            "metadata": { "type": "object", "description": "Optional metadata object" }
+                        },
+                        "required": ["text"]
+                    }
+                },
+                {
+                    "name": "search_memory",
+                    "description": "Search stored memories using MCP server-memory.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": { "type": "string", "description": "Search query" },
+                            "top_k": { "type": "number", "description": "Number of results", "default": 5 },
+                            "namespace": { "type": "string", "description": "Optional namespace filter" }
+                        },
+                        "required": ["query"]
+                    }
+                },
             ]}],
             "search": [{
                 "google_search": {}
@@ -189,6 +243,55 @@ Singleton {
                         }
                     },
                 },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "fetch_url",
+                        "description": "Fetch the contents of a URL over HTTP(S) using MCP server-fetch.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "url": { "type": "string", "description": "The URL to fetch" },
+                                "method": { "type": "string", "description": "HTTP method (GET, POST, etc.)", "default": "GET" },
+                                "headers": { "type": "object", "description": "Optional headers as a JSON object" },
+                                "body": { "description": "Optional request body; string or JSON-serializable value" }
+                            },
+                            "required": ["url"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "write_memory",
+                        "description": "Store a memory note using MCP server-memory.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "text": { "type": "string", "description": "The content to remember" },
+                                "namespace": { "type": "string", "description": "Optional namespace or topic" },
+                                "metadata": { "type": "object", "description": "Optional metadata object" }
+                            },
+                            "required": ["text"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "search_memory",
+                        "description": "Search stored memories using MCP server-memory.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "query": { "type": "string", "description": "Search query" },
+                                "top_k": { "type": "number", "description": "Number of results", "default": 5 },
+                                "namespace": { "type": "string", "description": "Optional namespace filter" }
+                            },
+                            "required": ["query"]
+                        }
+                    }
+                },
             ],
             "search": [],
             "none": [],
@@ -240,6 +343,55 @@ Singleton {
                             "required": ["command"]
                         }
                     },
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "fetch_url",
+                        "description": "Fetch the contents of a URL over HTTP(S) using MCP server-fetch.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "url": { "type": "string", "description": "The URL to fetch" },
+                                "method": { "type": "string", "description": "HTTP method (GET, POST, etc.)", "default": "GET" },
+                                "headers": { "type": "object", "description": "Optional headers as a JSON object" },
+                                "body": { "description": "Optional request body; string or JSON-serializable value" }
+                            },
+                            "required": ["url"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "write_memory",
+                        "description": "Store a memory note using MCP server-memory.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "text": { "type": "string", "description": "The content to remember" },
+                                "namespace": { "type": "string", "description": "Optional namespace or topic" },
+                                "metadata": { "type": "object", "description": "Optional metadata object" }
+                            },
+                            "required": ["text"]
+                        }
+                    }
+                },
+                {
+                    "type": "function",
+                    "function": {
+                        "name": "search_memory",
+                        "description": "Search stored memories using MCP server-memory.",
+                        "parameters": {
+                            "type": "object",
+                            "properties": {
+                                "query": { "type": "string", "description": "Search query" },
+                                "top_k": { "type": "number", "description": "Number of results", "default": 5 },
+                                "namespace": { "type": "string", "description": "Optional namespace filter" }
+                            },
+                            "required": ["query"]
+                        }
+                    }
                 },
             ],
             "search": [],
@@ -371,6 +523,8 @@ Singleton {
         "mistral": mistralApiStrategy.createObject(this),
     }
     property ApiStrategy currentApiStrategy: apiStrategies[models[currentModelId]?.api_format || "openai"]
+    // MCP servers configuration (for future tool integration)
+    property var mcpServers: Persistent.states?.ai?.mcpServers ?? []
 
     Connections {
         target: Config
@@ -495,7 +649,9 @@ Singleton {
         onLoadedChanged: {
             if (!promptLoader.loaded) return;
             Config.options.ai.systemPrompt = promptLoader.text();
-            root.addMessage(Translation.tr("Loaded the following system prompt\n\n---\n\n%1").arg(Config.options.ai.systemPrompt), root.interfaceRole);
+            // Show a single visible greeting message
+            root.clearMessages();
+            root.addMessage("System prompt loaded.. Good day Logic, how can i help you today?", root.interfaceRole, true);
         }
     }
 
@@ -509,7 +665,7 @@ Singleton {
         promptLoader.reload();
     }
 
-    function addMessage(message, role) {
+    function addMessage(message, role, visible = true) {
         if (message.length === 0) return;
         const aiMessage = aiMessageComponent.createObject(root, {
             "role": role,
@@ -518,6 +674,7 @@ Singleton {
             "thinking": false,
             "done": true,
         });
+        aiMessage.visibleToUser = visible;
         const id = idForMessage(aiMessage);
         root.messageIDs = [...root.messageIDs, id];
         root.messageByID[id] = aiMessage;
@@ -535,7 +692,8 @@ Singleton {
         root.addMessage(
             Translation.tr('To set an API key, pass it with the %4 command\n\nTo view the key, pass "get" with the command<br/>\n\n### For %1:\n\n**Link**: %2\n\n%3')
                 .arg(model.name).arg(model.key_get_link).arg(model.key_get_description ?? Translation.tr("<i>No further instruction provided</i>")).arg("/key"),
-            Ai.interfaceRole
+            Ai.interfaceRole,
+            false
         );
     }
 
@@ -574,7 +732,8 @@ Singleton {
                 Translation.tr("%1 enforces temperature = %2")
                     .arg(model.name)
                     .arg(fixedTemp),
-                Ai.interfaceRole
+                Ai.interfaceRole,
+                false
             );
         } else if (desiredTemp < 0 || desiredTemp > 2) {
             desiredTemp = 1;
@@ -591,7 +750,8 @@ Singleton {
                 Translation.tr("Model set to %1 (Temp: %2)")
                     .arg(model.name)
                     .arg(desiredTemp),
-                root.interfaceRole
+                root.interfaceRole,
+                false
             );
 
         if (model.requires_key) {
@@ -606,7 +766,7 @@ Singleton {
 
         // Optional auto-refresh
         if (root.messageIDs.length > 0) {
-            root.addMessage(Translation.tr("Re-syncing model context..."), root.interfaceRole);
+            root.addMessage(Translation.tr("Re-syncing model context..."), root.interfaceRole, false);
             requester.makeRequest();
         }
 
@@ -641,13 +801,14 @@ Singleton {
     const fixedTemp = model.fixed_temperature; // e.g., 1 if the model locks it
 
     // Handle models with fixed temperature
-    if (fixedTemp !== undefined) {
+        if (fixedTemp !== undefined) {
         if (value !== fixedTemp) {
             root.addMessage(
                 Translation.tr("%1 only supports temperature = %2. Automatically set.")
                     .arg(model.name)
                     .arg(fixedTemp),
-                Ai.interfaceRole
+                Ai.interfaceRole,
+                false
             );
         }
         value = fixedTemp;
@@ -655,14 +816,14 @@ Singleton {
 
     // Validate range
     if (isNaN(value) || value < 0 || value > 2) {
-        root.addMessage(Translation.tr("Temperature must be between 0 and 2"), Ai.interfaceRole);
+        root.addMessage(Translation.tr("Temperature must be between 0 and 2"), Ai.interfaceRole, false);
         return;
     }
 
     // Save and notify
     Persistent.states.ai.temperature = value;
     root.temperature = value;
-    root.addMessage(Translation.tr("Temperature set to %1").arg(value), Ai.interfaceRole);
+    root.addMessage(Translation.tr("Temperature set to %1").arg(value), Ai.interfaceRole, false);
     console.log("Sending model:", currentModelId, "temp:", root.temperature)
 
 }
@@ -672,7 +833,7 @@ Singleton {
     function setApiKey(key) {
         const model = models[currentModelId];
         if (!model.requires_key) {
-            root.addMessage(Translation.tr("%1 does not require an API key").arg(model.name), Ai.interfaceRole);
+            root.addMessage(Translation.tr("%1 does not require an API key").arg(model.name), Ai.interfaceRole, false);
             return;
         }
         if (!key || key.length === 0) {
@@ -681,7 +842,7 @@ Singleton {
             return;
         }
         KeyringStorage.setNestedField(["apiKeys", model.key_id], key.trim());
-        root.addMessage(Translation.tr("API key set for %1").arg(model.name), Ai.interfaceRole);
+        root.addMessage(Translation.tr("API key set for %1").arg(model.name), Ai.interfaceRole, false);
     }
 
     function printApiKey() {
@@ -921,6 +1082,113 @@ Singleton {
         }
     }
 
+    // Process to call filesystem MCP server
+    Process {
+        id: filesystemMcpProc
+        property string filePath: ""
+        property string functionName: ""
+        command: ["bash", "-c", `(
+            echo '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"quickshell","version":"1.0"}},"id":0}'
+            echo '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"read_file","arguments":{"path":"${filePath}"}},"id":1}'
+        ) | env npm_config_loglevel=silent npx -y @modelcontextprotocol/server-filesystem@latest /home 2>/dev/null | node -e 'let b="";process.stdin.setEncoding("utf8");process.stdin.on("data",d=>b+=d);process.stdin.on("end",()=>{b=b.split("\\r").join("");const ls=b.split("\\n").filter(l=>l.startsWith("{\"jsonrpc\"")&&l.includes("\"id\":1"));console.log(ls.length?ls[ls.length-1]:"");});'`]
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    // Parse MCP response (last line only)
+                    const lines = text.trim().split('\n');
+                    let response = null;
+                    for (let i = lines.length - 1; i >= 0; i--) {
+                        try { response = JSON.parse(lines[i]); break; } catch (e2) { /* skip non-JSON lines */ }
+                    }
+                    if (!response) throw new Error('No JSON-RPC response found');
+
+                    if (response.result && response.result.content) {
+                        const content = response.result.content[0];
+                        if (content.type === "text") {
+                            addFunctionOutputMessage(filesystemMcpProc.functionName, `File contents:\n\n${content.text}`);
+                        }
+                    } else if (response.error) {
+                        addFunctionOutputMessage(filesystemMcpProc.functionName, `Error: ${response.error.message}`);
+                    } else {
+                        addFunctionOutputMessage(filesystemMcpProc.functionName, `Unexpected response: ${JSON.stringify(response).substring(0, 200)}`);
+                    }
+                } catch (e) {
+                    addFunctionOutputMessage(filesystemMcpProc.functionName, `Failed to parse response. Raw: ${text.substring(0, 300)}... Error: ${e}`);
+                }
+                requester.makeRequest(); // Continue conversation
+            }
+        }
+        stderr: StdioCollector {
+            onStreamFinished: {
+                if (text.length > 0) {
+                    console.warn("[Filesystem MCP stderr]", text);
+                }
+            }
+        }
+    }
+
+    // Direct fetch (no MCP dependency)
+    Process {
+        id: fetchDirectProc
+        property string functionName: ""
+        property string url: ""
+        property string method: "GET"
+        property string headersJson: "{}"
+        property string bodyJson: "null"
+        command: ["bash", "-lc", `
+            URL=${CF.StringUtils.shellSingleQuoteEscape(url)};
+            METHOD=${CF.StringUtils.shellSingleQuoteEscape(method)};
+            HDRS=${CF.StringUtils.shellSingleQuoteEscape(headersJson)};
+            BODY=${CF.StringUtils.shellSingleQuoteEscape(bodyJson)};
+            # Build header flags from JSON
+            HDRFLAGS=$(jq -r 'to_entries|map("-H \""+ .key + ": " + ( .value|tostring ) + "\"")|.[]' <<< "$HDRS" 2>/dev/null | tr '\n' ' ');
+            # Always ask for JSON unless caller overrides
+            case "$HDRFLAGS" in (*"Accept:"*) : ;; (*) HDRFLAGS="$HDRFLAGS -H 'Accept: application/json'" ;; esac
+            # Make request
+            if [ "$METHOD" = "GET" ] || [ "$BODY" = "null" ]; then
+              RESP=$(eval curl --fail-with-body -sS -L "$URL" $HDRFLAGS) || { echo "ERROR: HTTP error"; exit 0; }
+            else
+              RESP=$(eval curl --fail-with-body -sS -L -X "$METHOD" $HDRFLAGS --data @<(printf %s "$BODY")) || { echo "ERROR: HTTP error"; exit 0; }
+            fi
+            # Ensure JSON only
+            if jq -e . >/dev/null 2>&1 <<< "$RESP"; then
+              echo "$RESP"
+            else
+              echo "ERROR: Non-JSON response"
+            fi
+        `]
+        stdout: StdioCollector { onStreamFinished: { addFunctionOutputMessage(fetchDirectProc.functionName, text.substring(0, 200000)); requester.makeRequest(); } }
+        stderr: StdioCollector { onStreamFinished: { if (text.length>0) addFunctionOutputMessage(fetchDirectProc.functionName, `Error: ${text.substring(0, 500)}`); } }
+    }
+
+    // Simple local memory store (no MCP dependency)
+    FileView { id: memoryFile; path: `${Directories.aiChats}/memory.json`; blockLoading: true }
+    function ensureMemoryFile() {
+        try {
+            memoryFile.reload();
+            const t = memoryFile.text();
+            if (!t || t.trim().length===0) memoryFile.setText("[]");
+        } catch (e) { memoryFile.setText("[]"); }
+    }
+    function memoryWrite(text, namespace, metadata) {
+        ensureMemoryFile();
+        const raw = memoryFile.text();
+        let arr = [];
+        try { arr = JSON.parse(raw); } catch (e) { arr = []; }
+        arr.push({ text, namespace, metadata, ts: Date.now() });
+        memoryFile.setText(JSON.stringify(arr));
+        return "Saved to memory.";
+    }
+    function memorySearch(query, top_k, namespace) {
+        ensureMemoryFile();
+        const raw = memoryFile.text();
+        let arr = [];
+        try { arr = JSON.parse(raw); } catch (e) { arr = []; }
+        const q = (query||"").toLowerCase();
+        const results = arr.filter(it => (!namespace || it.namespace===namespace) && (it.text||"").toLowerCase().includes(q)).slice(0, top_k||5);
+        return results.map(r => `- ${new Date(r.ts).toISOString()}: ${r.text}`).join("\n");
+    }
+
     function handleFunctionCall(name, args: var, message: AiMessageData) {
         if (name === "switch_to_search_mode") {
             const modelId = root.currentModelId;
@@ -949,6 +1217,46 @@ Singleton {
             message.rawContent += contentToAppend;
             message.content += contentToAppend;
             message.functionPending = true; // Use thinking to indicate the command is waiting for approval
+        } else if (name === "read_file") {
+            if (!args.path || args.path.length === 0) {
+                addFunctionOutputMessage(name, Translation.tr("Invalid arguments. Must provide `path`."));
+                requester.makeRequest();
+                return;
+            }
+            // Call the filesystem MCP server
+            filesystemMcpProc.filePath = args.path;
+            filesystemMcpProc.functionName = name;
+            filesystemMcpProc.running = true;
+        } else if (name === "fetch_url") {
+            if (!args.url || args.url.length === 0) {
+                addFunctionOutputMessage(name, Translation.tr("Invalid arguments. Must provide `url`."));
+                requester.makeRequest();
+                return;
+            }
+            fetchDirectProc.functionName = name;
+            fetchDirectProc.url = args.url;
+            fetchDirectProc.method = args.method ?? "GET";
+            try { fetchDirectProc.headersJson = JSON.stringify(args.headers ?? {}); } catch (e) { fetchDirectProc.headersJson = "{}"; }
+            try { fetchDirectProc.bodyJson = (args.body === undefined) ? "null" : JSON.stringify(args.body); } catch (e) { fetchDirectProc.bodyJson = "null"; }
+            fetchDirectProc.running = true;
+        } else if (name === "write_memory") {
+            if (!args.text || args.text.length === 0) {
+                addFunctionOutputMessage(name, Translation.tr("Invalid arguments. Must provide `text`."));
+                requester.makeRequest();
+                return;
+            }
+            const msg = memoryWrite(args.text, args.namespace, args.metadata);
+            addFunctionOutputMessage(name, msg);
+            requester.makeRequest();
+        } else if (name === "search_memory") {
+            if (!args.query || args.query.length === 0) {
+                addFunctionOutputMessage(name, Translation.tr("Invalid arguments. Must provide `query`."));
+                requester.makeRequest();
+                return;
+            }
+            const out = memorySearch(args.query, args.top_k ?? 5, args.namespace);
+            addFunctionOutputMessage(name, out.length ? out : "No matches.");
+            requester.makeRequest();
         }
         else root.addMessage(Translation.tr("Unknown function call: %1").arg(name), "assistant");
     }
@@ -994,7 +1302,7 @@ Singleton {
     }
 
     /**
-     * Loads chat from a JSON list of message objects.
+     * Loads chat from a JSON list of message objects
      * @param chatName name of the chat
      */
     function loadChat(chatName) {
