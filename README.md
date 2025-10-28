@@ -1,7 +1,5 @@
 # Changes and updates (2025-10-27)
 
-This document summarizes modifications to the Quickshell AI sidebar and related services.
-
 ## Highlights
 
 - Sessions start fresh; autosave overwrites the current session.
